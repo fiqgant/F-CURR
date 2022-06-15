@@ -22,7 +22,7 @@ import base64
 st.set_page_config( 
 layout="wide",  
 initial_sidebar_state="auto",
-page_title= "Y-CRYP",  
+page_title= "F-CURR",  
 page_icon= "Images/Favicon.png", 
 )
 
@@ -58,7 +58,7 @@ if choice == "Home":
     
   st.write("")
 
-  st.write("""  <p style=" font-size: 15px; font-weight:normal; font-family:verdana"> Y-CRYP is a special web service that allows you to view cryptocurrencies by many useful methods (technical indicators, graphical patterns, sentimental analysis, and more).</p>
+  st.write("""  <p style=" font-size: 15px; font-weight:normal; font-family:verdana"> F-CURR is a special web service that allows you to analyze and predict currencies.</p>
   """, unsafe_allow_html=True)
 
     
@@ -71,8 +71,8 @@ if choice == "Home":
 
 
 elif choice == "Viewer":
-  st.sidebar.header("Please select cryptocurrency")
-  option = st.sidebar.selectbox("Ticker Symbol",("BTC-USD", "ETH-USD", "XRP-USD", "DOGE-USD", "ADA-USD", "BNB-USD", "LTC-USD",))
+  st.sidebar.header("Please select currency")
+  option = st.sidebar.selectbox("Currency Symbol",("EURUSD=X", "JPY=X", "GBPUSD=X", "AUDUSD=X", "CAD=X", "CHF=X", "HKD=X",))
   today = datetime.date.today()
   before = today - datetime.timedelta(days=1400)
   start_date = st.sidebar.date_input('Start date', before)
@@ -142,7 +142,7 @@ elif choice == "Viewer":
     else:
       return "Positive" 
 
-  if option == "BTC-USD":
+  if option == "EURUSD=X":
     df = get_data(option, start_date, end_date)
 
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -195,7 +195,7 @@ elif choice == "Viewer":
 
     st.write("  ")
 
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> BTC-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> EURUSD=X Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True) 
     
     st.write("  ")
@@ -230,7 +230,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("Bitcoin")
+    news.search("eurusd")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -245,6 +245,45 @@ elif choice == "Viewer":
     st.info("5. " + result[5]["link"])
 
     
+    
+    # Sentiment Analysis Eurusd
+
+    st.write("  ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about EURUSD? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
+
+
+    df = get_tweets(api_key, api_secret, "#eurusd")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
+
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
+
+      
+    st.write(" ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
+
+    st.write("  ") 
+
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
 
 
    
@@ -254,7 +293,7 @@ elif choice == "Viewer":
 
 
 
-  elif option == "ETH-USD":
+  elif option == "JPY=X":
     df = get_data(option, start_date, end_date)
 
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -311,7 +350,7 @@ elif choice == "Viewer":
     st.write("  ")
 
     
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> ETH-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> JPY=X Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True)
 
     st.write("  ") 
@@ -343,7 +382,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("Etherium")
+    news.search("usdjpy")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -358,11 +397,49 @@ elif choice == "Viewer":
     st.info("5. " + result[5]["link"])
 
     
+    # Sentiment Analysis Etherium
+
+    st.write("  ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about USDJPY? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
+
+
+    df = get_tweets(api_key, api_secret, "#usdjpy")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
+
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
+
+      
+    st.write(" ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
+
+    st.write("  ") 
+
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
     
     
  
 
-  elif option == "DOGE-USD":
+  elif option == "AUDUSD=X":
     df = get_data(option, start_date, end_date)
     
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -418,7 +495,7 @@ elif choice == "Viewer":
     st.write("  ")
 
 
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> DOGE-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> AUDUSD=X Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True) 
     
     st.write("  ")
@@ -450,7 +527,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("Dogecoin")
+    news.search("audusd")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -466,10 +543,48 @@ elif choice == "Viewer":
 
     st.write("  ")
 
-   
+
+    # Sentiment Analysis AUDUSD
+
+    st.write("  ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about AUDUSD? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
 
 
-  elif option == "XRP-USD":
+    df = get_tweets(api_key, api_secret, "#audusd")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
+
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
+
+      
+    st.write(" ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
+
+    st.write("  ") 
+
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
+
+
+  elif option == "GBPUSD=X":
     df = get_data(option, start_date, end_date)
     
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -525,7 +640,7 @@ elif choice == "Viewer":
 
     st.write("  ")
 
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> DOGE-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> GBPUSD Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True) 
     
     st.write("  ")
@@ -557,7 +672,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("XRP")
+    news.search("gbpusd")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -572,9 +687,47 @@ elif choice == "Viewer":
     st.info("5. " + result[5]["link"])
 
     
+    # Sentiment Analysis gbpusd
+
+    st.write("  ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about GBPUSD? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
 
 
-  elif option == "ADA-USD":
+    df = get_tweets(api_key, api_secret, "#gbpusd")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
+
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
+
+      
+    st.write(" ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
+
+    st.write("  ") 
+
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
+
+
+  elif option == "CAD=X":
     df = get_data(option, start_date, end_date)
     
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -630,7 +783,7 @@ elif choice == "Viewer":
 
     st.write("  ")
 
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> ADA-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> USDCAD Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True) 
     
     st.write("  ")
@@ -662,7 +815,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("cryptocurrency")
+    news.search("usdcad")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -677,9 +830,46 @@ elif choice == "Viewer":
     st.info("5. " + result[5]["link"])
 
     
+    # Sentiment Analysis usdcad
+
+    st.write("  ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about USDCAD? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
 
 
-  elif option == "BNB-USD":
+    df = get_tweets(api_key, api_secret, "#usdcad")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
+
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
+      
+    st.write(" ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
+
+    st.write("  ") 
+
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
+
+
+  elif option == "CHF=X":
     df = get_data(option, start_date, end_date)
     
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -735,7 +925,7 @@ elif choice == "Viewer":
 
     st.write("  ")
 
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> BNB-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> USDCHF Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True) 
     
     st.write("  ")
@@ -767,7 +957,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("BNB")
+    news.search("usdchf")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -781,10 +971,48 @@ elif choice == "Viewer":
     st.write("5. " + result[5]["title"])
     st.info("5. " + result[5]["link"])
 
-   
+
+    # Sentiment Analysis BNB
+
+    st.write("  ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about USDCHF? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
 
 
-  elif option == "LTC-USD":
+    df = get_tweets(api_key, api_secret, "#usdchf")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
+
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
+
+      
+    st.write(" ")
+
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
+
+    st.write("  ") 
+
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
+
+
+  elif option == "HKD=X":
     df = get_data(option, start_date, end_date)
     
     st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Raw Data </p>
@@ -840,7 +1068,7 @@ elif choice == "Viewer":
 
     st.write("  ")
 
-    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> LTC-USD Forecast using Facebook Prophet </p>
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> USDHKD Forecast using Facebook Prophet </p>
   """, unsafe_allow_html=True) 
     
     st.write("  ")
@@ -872,7 +1100,7 @@ elif choice == "Viewer":
 
     news = GoogleNews()
     news = GoogleNews("en", "d")
-    news.search("Litecoin")
+    news.search("hkd")
     news.get_page(1)
     result = news.result()
     st.write("1. " + result[1]["title"])
@@ -887,40 +1115,41 @@ elif choice == "Viewer":
     st.info("5. " + result[5]["link"])
 
 
-  # Sentiment Analysis
+    # Sentiment Analysis Litecoin
 
-  st.write("  ")
+    st.write("  ")
 
-  st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about cryptocurrency? </p>
-  """, unsafe_allow_html=True) 
-    
-  st.write("  ")
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> How generally users feel about USDHKD? </p>
+    """, unsafe_allow_html=True) 
+      
+    st.write("  ")
 
 
-  df = get_tweets(api_key, api_secret, "#cryptocurrency")
-  df["Tweets"] = df["Tweets"].apply(Clean)
-  df["Subjectivity"] = df["Tweets"].apply(subjectivity)
-  df["Polarity"] = df["Tweets"].apply(polarity)
+    df = get_tweets(api_key, api_secret, "#hongkong")
+    df["Tweets"] = df["Tweets"].apply(Clean)
+    df["Subjectivity"] = df["Tweets"].apply(subjectivity)
+    df["Polarity"] = df["Tweets"].apply(polarity)
 
-  #WordCloud
-  words = " ".join([twts for twts in df["Tweets"]])
-  cloud = WordCloud(random_state = 21, max_font_size = 100).generate(words)
-  plt.imshow(cloud, interpolation = "bilinear")
-  plt.axis("off")
-  st.pyplot()
+    #WordCloud
+    words = " ".join([twts for twts in df["Tweets"]])
+    cloud = WordCloud(width=1600, height=800, random_state = 21, max_font_size = 100).generate(words)
+    plt.figure( figsize=(20,10) )
+    plt.imshow(cloud, interpolation = "bilinear")
+    plt.axis("off")
+    st.pyplot()
 
-    
-  st.write(" ")
+      
+    st.write(" ")
 
-  st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
-  """, unsafe_allow_html=True)
+    st.write(""" <p style=" color:#EC6F62; font-size: 30px; font-weight:bold"> Sentiment Bar Plot  </p>
+    """, unsafe_allow_html=True)
 
-  st.write("  ") 
+    st.write("  ") 
 
-  # Get Sentiment tweets
-  df["Sentiment"] = df["Polarity"].apply(sentiment)
-  df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
-  plt.title("Sentiment Analysis Bar Plot")
-  plt.xlabel("Sentiment")
-  plt.ylabel("Number of Tweets")
-  st.pyplot()
+    # Get Sentiment tweets
+    df["Sentiment"] = df["Polarity"].apply(sentiment)
+    df["Sentiment"].value_counts().plot(kind = "bar", figsize = (10,5))
+    plt.title("Sentiment Analysis Bar Plot")
+    plt.xlabel("Sentiment")
+    plt.ylabel("Number of Tweets")
+    st.pyplot()
